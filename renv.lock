@@ -472,8 +472,8 @@
 			"RemoteType" : "github",
 			"RemoteHost" : "api.github.com",
 			"RemoteRepo" : "DescriptiveStudies",
-			"RemoteUsername" : "jreps",
-			"RemoteRef" : "master"
+			"RemoteUsername" : "anthonysena",
+			"RemoteRef" : "v0.0.2"
 		}
 	}
 }
