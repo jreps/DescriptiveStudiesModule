@@ -40,7 +40,7 @@ analysisSpecifications <- Strategus::createEmptyAnalysisSpecificiations() %>%
   ) %>%
   Strategus::addModuleSpecifications(
     createDescriptiveStudiesModuleSpecifications(
-      targetIds = c(1:5), 
+      targetIds = c(1:3), 
       outcomeIds = c(1),
       dechallengeStopInterval = 30,
       dechallengeEvaluationWindow = 30,
@@ -51,7 +51,7 @@ analysisSpecifications <- Strategus::createEmptyAnalysisSpecificiations() %>%
       covariateSettings = FeatureExtraction::createDefaultCovariateSettings()
     )
   )
-executionSettings <- Strategus::createExecutionSettings(
+executionSettings <- Strategus::createCdmExecutionSettings(
   connectionDetailsReference = "dummy",
   workDatabaseSchema = "main",
   cdmDatabaseSchema = "main",

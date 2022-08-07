@@ -43,7 +43,7 @@ createDescriptiveStudiesModuleSpecifications <- function(
     )
   
   specifications <- list(module = "DescriptiveStudiesModule",
-                         version = "0.0.1",
+                         version = "0.0.1-1",
                          remoteRepo = "github.com",
                          remoteUsername = "anthonysena",
                          settings = analysis)
