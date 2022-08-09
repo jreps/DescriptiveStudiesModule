@@ -70,14 +70,14 @@ execute <- function(jobContext) {
     tempEmulationSchema = NULL,
     tablePrefix = moduleInfo$TablePrefix,
     filePrefix = moduleInfo$TablePrefix,
-    saveDirectory = file.path(resultsFolder, 'results')
+    saveDirectory = resultsFolder
   )
   
   # Zip the results
   rlang::inform("Zipping csv files")
   OhdsiSharing::compressFolder(
-    sourceFolder = file.path(resultsFolder, 'results'), 
-    targetFileName = file.path(resultsFolder, 'results_zip')
+    sourceFolder = file.path(resultsFolder), 
+    targetFileName = file.path(resultsFolder, 'results.zip')
   )
   
 }
