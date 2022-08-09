@@ -13,9 +13,10 @@ jobContext$moduleExecutionSettings$connectionDetails <- connectionDetails
 
 test_that("Run module", {
   source("Main.R")
+  #debugonce(execute)
   execute(jobContext)
   resultsFiles <- list.files(resultsfolder)
-  expect_true("cg_cohort_definition.csv" %in% resultsFiles)
+  expect_true("c_covariates.csv" %in% resultsFiles)
 })
 
 unlink(workFolder)

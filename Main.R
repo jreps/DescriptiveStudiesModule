@@ -15,6 +15,11 @@
 # limitations under the License.
 
 # Module methods -------------------------
+getModuleInfo <- function() {
+  checkmate::assert_file_exists("MetaData.json")
+  return(ParallelLogger::loadSettingsFromJson("MetaData.json"))
+}
+
 execute <- function(jobContext) {
   rlang::inform("Validating inputs")
   inherits(jobContext, 'list')
@@ -32,6 +37,7 @@ execute <- function(jobContext) {
   resultsFolder <- jobContext$moduleExecutionSettings$resultsSubFolder
   
   rlang::inform("Executing DescriptiveStudies")
+  moduleInfo <- getModuleInfo()
   
   # run the models
   DescriptiveStudies::runCharacterizationAnalyses(
@@ -43,7 +49,8 @@ execute <- function(jobContext) {
     cdmDatabaseSchema = jobContext$moduleExecutionSettings$cdmDatabaseSchema, 
     characterizationSettings = jobContext$settings, 
     databaseId = jobContext$moduleExecutionSettings$databaseId, # where to get this?
-    saveDirectory = resultsFolder
+    saveDirectory = resultsFolder,
+    tablePrefix = moduleInfo$TablePrefix
     #tempEmulationSchema = 
   )
     
@@ -59,9 +66,10 @@ execute <- function(jobContext) {
   DescriptiveStudies::exportDatabaseToCsv(
     connectionDetails = sqliteConnectionDetails, 
     resultSchema = 'main', 
-    stringAppendToTables = '',
     targetDialect = 'sqlite', 
     tempEmulationSchema = NULL,
+    tablePrefix = moduleInfo$TablePrefix,
+    filePrefix = moduleInfo$TablePrefix,
     saveDirectory = file.path(resultsFolder, 'results')
   )
   
