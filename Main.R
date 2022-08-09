@@ -73,11 +73,24 @@ execute <- function(jobContext) {
     saveDirectory = resultsFolder
   )
   
+  # Export the resultsDataModelSpecification.csv
+  resultsDataModel <- CohortGenerator::readCsv(file = system.file("settings/resultsDataModelSpecification.csv",
+                                                                  package = "DescriptiveStudies"),
+                                               warnOnCaseMismatch = FALSE)
+  newTableNames <- paste0(moduleInfo$TablePrefix, resultsDataModel$tableName)
+  resultsDataModel$tableName <- newTableNames
+  CohortGenerator::writeCsv(
+    x = resultsDataModel,
+    file = file.path(resultsFolder, "resultsDataModelSpecification.csv"),
+    warnOnCaseMismatch = FALSE,
+    warnOnFileNameCaseMismatch = FALSE,
+    warnOnUploadRuleViolations = FALSE
+  )  
+  
   # Zip the results
   rlang::inform("Zipping csv files")
-  OhdsiSharing::compressFolder(
-    sourceFolder = file.path(resultsFolder), 
-    targetFileName = file.path(resultsFolder, 'results.zip')
+  DatabaseConnector::createZipFile(
+    zipFile = file.path(resultsFolder, 'results.zip'),
+    files = file.path(resultsFolder)
   )
-  
 }
