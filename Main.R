@@ -48,19 +48,22 @@ execute <- function(jobContext) {
     outcomeTable = jobContext$moduleExecutionSettings$cohortTableNames$cohortTable,
     cdmDatabaseSchema = jobContext$moduleExecutionSettings$cdmDatabaseSchema, 
     characterizationSettings = jobContext$settings, 
-    databaseId = jobContext$moduleExecutionSettings$databaseId, # where to get this?
+    databaseId = jobContext$moduleExecutionSettings$databaseId,
     saveDirectory = resultsFolder,
     tablePrefix = moduleInfo$TablePrefix
-    #tempEmulationSchema = 
   )
     
   
   # Export the results
   rlang::inform("Export data to csv files")
 
+  sqliteFile <- file.path(resultsFolder,"sqliteCharacterization", "sqlite")
+  if (file.exists(sqliteFile)) {
+	  unlink(sqliteFile)
+  }
   sqliteConnectionDetails <- DatabaseConnector::createConnectionDetails(
     dbms = 'sqlite',
-    server = file.path(resultsFolder,"sqliteCharacterization", "sqlite")
+    server = sqliteFile
   )
     
   DescriptiveStudies::exportDatabaseToCsv(
