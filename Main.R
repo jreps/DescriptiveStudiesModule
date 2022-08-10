@@ -57,13 +57,9 @@ execute <- function(jobContext) {
   # Export the results
   rlang::inform("Export data to csv files")
 
-  sqliteFile <- file.path(resultsFolder,"sqliteCharacterization", "sqlite")
-  if (file.exists(sqliteFile)) {
-	  unlink(sqliteFile)
-  }
   sqliteConnectionDetails <- DatabaseConnector::createConnectionDetails(
     dbms = 'sqlite',
-    server = sqliteFile
+    server = file.path(resultsFolder,"sqliteCharacterization", "sqlite")
   )
     
   DescriptiveStudies::exportDatabaseToCsv(
