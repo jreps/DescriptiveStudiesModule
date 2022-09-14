@@ -11,6 +11,8 @@ jobContext$moduleExecutionSettings$workSubFolder <- workFolder
 jobContext$moduleExecutionSettings$resultsSubFolder <- resultsfolder
 jobContext$moduleExecutionSettings$connectionDetails <- connectionDetails
 
+Eunomia::createCohorts(connectionDetails = connectionDetails)
+
 test_that("Run module", {
   source("Main.R")
   #debugonce(execute)
