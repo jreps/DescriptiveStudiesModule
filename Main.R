@@ -29,8 +29,8 @@ execute <- function(jobContext) {
     stop("Execution settings not found in job context")
   }
   
-  resultsFolder <- jobContext$moduleExecutionSettings$resultsSubFolder
-  
+  workFolder <- jobContext$moduleExecutionSettings$workSubFolder # does this exist?
+ 
   rlang::inform("Executing DescriptiveStudies")
   
   # run the models
@@ -43,7 +43,7 @@ execute <- function(jobContext) {
     cdmDatabaseSchema = jobContext$moduleExecutionSettings$cdmDatabaseSchema, 
     characterizationSettings = jobContext$settings, 
     databaseId = jobContext$moduleExecutionSettings$databaseId, # where to get this?
-    saveDirectory = resultsFolder
+    saveDirectory = workFolder
     #tempEmulationSchema = 
   )
     
@@ -53,23 +53,37 @@ execute <- function(jobContext) {
 
   sqliteConnectionDetails <- DatabaseConnector::createConnectionDetails(
     dbms = 'sqlite',
-    server = file.path(resultsFolder,"sqliteCharacterization", "sqlite")
+    server = file.path(workFolder,"sqliteCharacterization", "sqlite")
   )
     
+
   DescriptiveStudies::exportDatabaseToCsv(
     connectionDetails = sqliteConnectionDetails, 
     resultSchema = 'main', 
     stringAppendToTables = '',
     targetDialect = 'sqlite', 
     tempEmulationSchema = NULL,
-    saveDirectory = file.path(resultsFolder, 'results')
+    saveDirectory = file.path(workFolder, 'results')
   )
+  
+  resultsFolder <- jobContext$moduleExecutionSettings$resultsSubFolder
   
   # Zip the results
   rlang::inform("Zipping csv files")
   OhdsiSharing::compressFolder(
-    sourceFolder = file.path(resultsFolder, 'results'), 
-    targetFileName = file.path(resultsFolder, 'results_zip')
+    sourceFolder = file.path(workFolder, 'results'), 
+    targetFileName = file.path(resultsFolder, 'results.zip')
   )
+  
+  resultsDataModel <- CohortGenerator::readCsv(
+    file = system.file(
+      "settings", "resultsDataModelSpecification.csv", 
+       package = "DescriptiveStudies")
+    )
+  CohortGenerator::writeCsv(
+    x = resultsDataModel, 
+    file = file.path(resultFolder, "resultsDataModelSpecification.csv"),
+    warnOnFileNameCaseMismatch = FALSE
+    )
   
 }

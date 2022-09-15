@@ -467,7 +467,7 @@
 		},
 		"DescriptiveStudies" : {
 			"Package" : "DescriptiveStudies",
-			"Version" : "0.0.2",
+			"Version" : "0.0.4",
 			"Source" : "GitHub",
 			"RemoteType" : "github",
 			"RemoteHost" : "api.github.com",

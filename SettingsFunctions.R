@@ -26,7 +26,7 @@ createDescriptiveStudiesModuleSpecifications <- function(
     dechallengeEvaluationWindow = dechallengeEvaluationWindow
   )
   
-  ggregateCovariateSettings <- DescriptiveStudies::createAggregateCovariateSettings(
+  aggregateCovariateSettings <- DescriptiveStudies::createAggregateCovariateSettings(
     targetIds = targetIds, 
     outcomeIds = outcomeIds,
     riskWindowStart = riskWindowStart, 
