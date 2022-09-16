@@ -69,8 +69,7 @@ execute <- function(jobContext) {
     tempEmulationSchema = NULL,
     tablePrefix = moduleInfo$TablePrefix,
     filePrefix = moduleInfo$TablePrefix,
-    saveDirectory = resultsFolder
-    # saveDirectory = file.path(workFolder, 'results')
+    saveDirectory = file.path(workFolder, 'results')
   )
   
   # get the result location folder
