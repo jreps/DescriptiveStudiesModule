@@ -15,6 +15,11 @@
 # limitations under the License.
 
 # Module methods -------------------------
+getModuleInfo <- function() {
+  checkmate::assert_file_exists("MetaData.json")
+  return(ParallelLogger::loadSettingsFromJson("MetaData.json"))
+}
+
 execute <- function(jobContext) {
   rlang::inform("Validating inputs")
   inherits(jobContext, 'list')
@@ -32,6 +37,7 @@ execute <- function(jobContext) {
   workFolder <- jobContext$moduleExecutionSettings$workSubFolder # does this exist?
  
   rlang::inform("Executing DescriptiveStudies")
+  moduleInfo <- getModuleInfo()
   
   # run the models
   DescriptiveStudies::runCharacterizationAnalyses(
@@ -42,9 +48,9 @@ execute <- function(jobContext) {
     outcomeTable = jobContext$moduleExecutionSettings$cohortTableNames$cohortTable,
     cdmDatabaseSchema = jobContext$moduleExecutionSettings$cdmDatabaseSchema, 
     characterizationSettings = jobContext$settings, 
-    databaseId = jobContext$moduleExecutionSettings$databaseId, # where to get this?
-    saveDirectory = workFolder
-    #tempEmulationSchema = 
+    databaseId = jobContext$moduleExecutionSettings$databaseId,
+    saveDirectory = workFolder,
+    tablePrefix = moduleInfo$TablePrefix
   )
     
   
@@ -56,34 +62,45 @@ execute <- function(jobContext) {
     server = file.path(workFolder,"sqliteCharacterization", "sqlite")
   )
     
-
   DescriptiveStudies::exportDatabaseToCsv(
     connectionDetails = sqliteConnectionDetails, 
     resultSchema = 'main', 
-    stringAppendToTables = '',
     targetDialect = 'sqlite', 
     tempEmulationSchema = NULL,
-    saveDirectory = file.path(workFolder, 'results')
+    tablePrefix = moduleInfo$TablePrefix,
+    filePrefix = moduleInfo$TablePrefix,
+    saveDirectory = resultsFolder
+    # saveDirectory = file.path(workFolder, 'results')
   )
   
+  # get the result location folder
   resultsFolder <- jobContext$moduleExecutionSettings$resultsSubFolder
+  
+  # Export the resultsDataModelSpecification.csv
+  resultsDataModel <- CohortGenerator::readCsv(
+    file = system.file(
+      "settings/resultsDataModelSpecification.csv",
+      package = "DescriptiveStudies"
+    ),
+    warnOnCaseMismatch = FALSE
+  )
+  
+  # add the prefix to the tableName column
+  resultsDataModel$tableName <- paste0(moduleInfo$TablePrefix, resultsDataModel$tableName)
+  
+  CohortGenerator::writeCsv(
+    x = resultsDataModel,
+    file = file.path(resultsFolder, "resultsDataModelSpecification.csv"),
+    warnOnCaseMismatch = FALSE,
+    warnOnFileNameCaseMismatch = FALSE,
+    warnOnUploadRuleViolations = FALSE
+  )  
   
   # Zip the results
   rlang::inform("Zipping csv files")
-  OhdsiSharing::compressFolder(
-    sourceFolder = file.path(workFolder, 'results'), 
-    targetFileName = file.path(resultsFolder, 'results.zip')
+  DatabaseConnector::createZipFile(
+    zipFile = file.path(resultsFolder, 'results.zip'),
+    files = file.path(workFolder, 'results')
   )
-  
-  resultsDataModel <- CohortGenerator::readCsv(
-    file = system.file(
-      "settings", "resultsDataModelSpecification.csv", 
-       package = "DescriptiveStudies")
-    )
-  CohortGenerator::writeCsv(
-    x = resultsDataModel, 
-    file = file.path(resultFolder, "resultsDataModelSpecification.csv"),
-    warnOnFileNameCaseMismatch = FALSE
-    )
-  
+
 }
