@@ -34,8 +34,8 @@ execute <- function(jobContext) {
     stop("Execution settings not found in job context")
   }
   
-  resultsFolder <- jobContext$moduleExecutionSettings$resultsSubFolder
-  
+  workFolder <- jobContext$moduleExecutionSettings$workSubFolder # does this exist?
+ 
   rlang::inform("Executing DescriptiveStudies")
   moduleInfo <- getModuleInfo()
   
@@ -49,7 +49,7 @@ execute <- function(jobContext) {
     cdmDatabaseSchema = jobContext$moduleExecutionSettings$cdmDatabaseSchema, 
     characterizationSettings = jobContext$settings, 
     databaseId = jobContext$moduleExecutionSettings$databaseId,
-    saveDirectory = resultsFolder,
+    saveDirectory = workFolder,
     tablePrefix = moduleInfo$TablePrefix
   )
     
@@ -59,7 +59,7 @@ execute <- function(jobContext) {
 
   sqliteConnectionDetails <- DatabaseConnector::createConnectionDetails(
     dbms = 'sqlite',
-    server = file.path(resultsFolder,"sqliteCharacterization", "sqlite")
+    server = file.path(workFolder,"sqliteCharacterization", "sqlite")
   )
     
   DescriptiveStudies::exportDatabaseToCsv(
@@ -70,14 +70,24 @@ execute <- function(jobContext) {
     tablePrefix = moduleInfo$TablePrefix,
     filePrefix = moduleInfo$TablePrefix,
     saveDirectory = resultsFolder
+    # saveDirectory = file.path(workFolder, 'results')
   )
   
+  # get the result location folder
+  resultsFolder <- jobContext$moduleExecutionSettings$resultsSubFolder
+  
   # Export the resultsDataModelSpecification.csv
-  resultsDataModel <- CohortGenerator::readCsv(file = system.file("settings/resultsDataModelSpecification.csv",
-                                                                  package = "DescriptiveStudies"),
-                                               warnOnCaseMismatch = FALSE)
-  newTableNames <- paste0(moduleInfo$TablePrefix, resultsDataModel$tableName)
-  resultsDataModel$tableName <- newTableNames
+  resultsDataModel <- CohortGenerator::readCsv(
+    file = system.file(
+      "settings/resultsDataModelSpecification.csv",
+      package = "DescriptiveStudies"
+    ),
+    warnOnCaseMismatch = FALSE
+  )
+  
+  # add the prefix to the tableName column
+  resultsDataModel$tableName <- paste0(moduleInfo$TablePrefix, resultsDataModel$tableName)
+  
   CohortGenerator::writeCsv(
     x = resultsDataModel,
     file = file.path(resultsFolder, "resultsDataModelSpecification.csv"),
@@ -90,6 +100,7 @@ execute <- function(jobContext) {
   rlang::inform("Zipping csv files")
   DatabaseConnector::createZipFile(
     zipFile = file.path(resultsFolder, 'results.zip'),
-    files = file.path(resultsFolder)
+    files = file.path(workFolder, 'results')
   )
+
 }

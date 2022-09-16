@@ -53,13 +53,13 @@
     },
     "DescriptiveStudies": {
       "Package": "DescriptiveStudies",
-      "Version": "0.0.3",
+      "Version": "0.0.4",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "DescriptiveStudies",
-      "RemoteUsername": "anthonysena",
-      "RemoteRef": "v0.0.3-4",
+      "RemoteUsername": "jreps",
+      "RemoteRef": "c3b40364a9dc718678e73b0354561a62cb24b990",
       "Requirements": []
     },
     "Eunomia": {
