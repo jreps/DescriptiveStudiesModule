@@ -62,6 +62,9 @@ execute <- function(jobContext) {
     server = file.path(workFolder,"sqliteCharacterization", "sqlite")
   )
     
+  # get the result location folder
+  resultsFolder <- jobContext$moduleExecutionSettings$resultsSubFolder
+  
   DescriptiveStudies::exportDatabaseToCsv(
     connectionDetails = sqliteConnectionDetails, 
     resultSchema = 'main', 
@@ -69,11 +72,8 @@ execute <- function(jobContext) {
     tempEmulationSchema = NULL,
     tablePrefix = moduleInfo$TablePrefix,
     filePrefix = moduleInfo$TablePrefix,
-    saveDirectory = file.path(workFolder, 'results')
+    saveDirectory = resultsFolder
   )
-  
-  # get the result location folder
-  resultsFolder <- jobContext$moduleExecutionSettings$resultsSubFolder
   
   # Export the resultsDataModelSpecification.csv
   resultsDataModel <- CohortGenerator::readCsv(
@@ -99,7 +99,7 @@ execute <- function(jobContext) {
   rlang::inform("Zipping csv files")
   DatabaseConnector::createZipFile(
     zipFile = file.path(resultsFolder, 'results.zip'),
-    files = file.path(workFolder, 'results')
+    files = resultsFolder
   )
 
 }
